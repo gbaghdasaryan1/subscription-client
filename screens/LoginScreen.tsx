@@ -1,16 +1,32 @@
-import { StyleSheet, Text, View } from "react-native";
+import { login } from "@/services/api";
+import { navigate } from "expo-router/build/global-state/routing";
+import { useState } from "react";
+import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 
 export const  LoginScreen = () => {
+const [form, setForm] = useState({
+    emailOrPhone: "",
+    password: "",
+});
 
+const handleLogin = async () =>  {
+    try {
+        const res = await login(form.emailOrPhone, form.password);
+        console.log(res?.data);
+        navigate("/qr")
+    } catch (error) {
+        console.log(error);
+    }
+}
  
 
     return <View style={styles.container}>
         <Text style={styles.title}>Login</Text>
 
-        {/* <TextInput style={styles.input} placeholder="Email or Phone" value={emailOrPhone} onChangeText={setEmailOrPhone}/> */}
-        {/* <TextInput style={styles.input} placeholder="Password" value={password}  onChangeText={setPassword}/> */}
+        <TextInput style={styles.input} placeholder="Email or Phone" value={form.emailOrPhone} onChangeText={(emailOrPhone) => setForm((prev) => ({...prev, emailOrPhone})) }/>
+        <TextInput style={styles.input} placeholder="Password" value={form.password}  onChangeText={(password) => setForm((prev) => ({...prev, password})) }/>
 
-        {/* <Button title="Login" onPress={handleLogin}/> */}
+        <Button title="Login" onPress={handleLogin}/>
     </View>
 };
 

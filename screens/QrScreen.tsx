@@ -1,10 +1,11 @@
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 // import QRCode from 'react-native-qrcode-svg';
 
 
 export const QrScreen = () => {
 
     return <View style={styles.container}>
+        <Text>QR</Text>
         {/* <QRCode value={qrData} size={250}/> */}
     </View>
 };

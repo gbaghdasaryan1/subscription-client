@@ -37,8 +37,8 @@ export const login = async (emailOrPhone: string, password: string) => {
       password,
     });
     return res;
-  } catch (error) {
-    console.error(error);
+  } catch (err:any) {
+    console.log("Error response:", err.response?.data);
   }
 };
 
@@ -78,10 +78,7 @@ export const getVerificationCode = async (
   }
 };
 
-export const verifyOtp = async (
-  target: string,
-  otp: string,
-) => {
+export const verifyOtp = async (target: string, otp: string) => {
   try {
     const res = await axios.post(`${API_BASE}/auth/verify-otp`, {
       target,
@@ -99,7 +96,7 @@ export const getSubscriptions = async (userId: string) => {
       `http://localhost:5050/subscriptions/${userId}`,
     );
     return res.data;
-  } catch (error) {
-    console.log(error);
+  } catch (err: any) {
+    console.log("Error response:", err.response?.data);
   }
 };

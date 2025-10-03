@@ -1,7 +1,8 @@
 import { colors } from "@/constants/theme";
 import { RegistrationForm } from "@/screens/RegistrationScreen";
 import { registration, verifyOtp } from "@/services/api";
-import { FC } from "react";
+import { navigate } from "expo-router/build/global-state/routing";
+import { FC, useState } from "react";
 import {
   Alert,
   Button,
@@ -16,9 +17,9 @@ import { useModalStore } from "../store";
 
 export const OtpModal: FC = () => {
   const { meta, closeModal } = useModalStore();
+  const [otp,setOtp] = useState<string>("");
 
-  const { setCode, form } = meta as {
-    setCode: (otp: string) => void;
+  const {  form } = meta as {
     form: RegistrationForm;
   };
 
@@ -26,16 +27,21 @@ export const OtpModal: FC = () => {
     const target = form.email || form.phone;
 
     try {
-      const verified = await verifyOtp(target, form.code);
+      const verified = await verifyOtp(target, otp);
+      console.log("verified",verified);
+      console.log("form",form);
+      
+      
       if (verified) {
         await registration(form);
       } else {
         Alert.alert("Something went wrong");
       }
-    } catch (error) {
-      console.log(error);
-    }finally{
-      closeModal()
+    } catch (error: any) {
+      console.log(error.response);
+    } finally {
+      closeModal();
+      navigate("/login")
     }
   };
 
@@ -46,7 +52,7 @@ export const OtpModal: FC = () => {
         <TextInput
           style={styles.verificationInput}
           placeholder="Напишите коде "
-          onChangeText={(otp) => setCode(otp)}
+          onChangeText={(otp) => setOtp(otp)}
           placeholderTextColor="#888"
         />
 
@@ -54,12 +60,10 @@ export const OtpModal: FC = () => {
           style={styles.primaryButton}
           onPress={handleVerifyOtp}
         >
-          <Text style={styles.buttonText}>
-            Send
-          </Text>
+          <Text style={styles.buttonText}>Send</Text>
         </TouchableOpacity>
 
-        <Button title="Close modal" onPress={closeModal}/>
+        <Button title="Close modal" onPress={closeModal} />
       </View>
     </ScrollView>
   );
@@ -82,7 +86,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.1)",
     justifyContent: "center",
     alignItems: "center",
-    zIndex: 1000, 
+    zIndex: 1000,
   },
   verificationWrapper: {
     gap: 12,

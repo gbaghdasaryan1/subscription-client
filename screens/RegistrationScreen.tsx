@@ -1,10 +1,9 @@
 import { ModalType, useModalStore } from "@/components/modal/store";
 import { colors } from "@/constants/theme";
-import { registration, verifyOtp } from "@/services/api";
+import { getVerificationCode } from "@/services/api";
 import { Link } from "expo-router";
 import { useState } from "react";
 import {
-  Alert,
   Dimensions,
   ScrollView,
   StyleSheet,
@@ -12,7 +11,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -37,46 +36,41 @@ export const RegistrationScreen = () => {
     code: "",
     acceptTerms: false,
   });
-    const { openModal } = useModalStore();
+  const { openModal } = useModalStore();
 
-    console.log(form, "code");
-    
-  
 
   const handleVerifyEmailOrPhone = async () => {
     openModal(ModalType.OTP_MODAL, {
       form,
-      setCode:(otp: string) => setForm((prev) => ({...prev,code: otp}))
-    })
-    // try {
-    //   if (form.email) {
-    //     const code = await getVerificationCode(form.email, "mail");
-    //     setForm((prev) => ({...prev, code}))
-    //   } else {
-    //     const code = await getVerificationCode(form.phone, "sms");
-    //     setForm((prev) => ({...prev, code}))
-    //   }
-    //   setVerificationInput(true)
-    // } catch (error) {
-    //   console.log(error);
-    // } 
-  };
-
-  const handleSubmit = async () => {
-    const target = form.email || form.phone;
-
-   try {
-    const verified = await verifyOtp(target, form.code);
-    if(verified){
-      await registration(form);
-    }else{
-      Alert.alert("Something went wrong")
-    }
-   } catch (error) {
+      setCode: (otp: string) => setForm((prev) => ({ ...prev, code: otp })),
+    });
+    try {
+      if(form.password && form.fullName){
+        if (form.email) {
+        await getVerificationCode(form.email, "mail");
+      } else {
+        await getVerificationCode(form.phone, "sms");
+      }
+      }
+    } catch (error) {
       console.log(error);
-    
-   }
+    }
   };
+
+  // const handleSubmit = async () => {
+  //   const target = form.email || form.phone;
+
+  //   try {
+  //     const verified = await verifyOtp(target, form.code);
+  //     if (verified) {
+  //       await registration(form);
+  //     } else {
+  //       Alert.alert("Something went wrong");
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   return (
     <>
