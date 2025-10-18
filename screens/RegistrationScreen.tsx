@@ -1,6 +1,6 @@
 import { ModalType, useModalStore } from "@/components/modal/store";
 import { colors } from "@/constants/theme";
-import { getVerificationCode } from "@/services/api";
+import { getVerificationCode } from "@/services";
 import { Link } from "expo-router";
 import { useState } from "react";
 import {
@@ -56,21 +56,6 @@ export const RegistrationScreen = () => {
       console.log(error);
     }
   };
-
-  // const handleSubmit = async () => {
-  //   const target = form.email || form.phone;
-
-  //   try {
-  //     const verified = await verifyOtp(target, form.code);
-  //     if (verified) {
-  //       await registration(form);
-  //     } else {
-  //       Alert.alert("Something went wrong");
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
 
   return (
     <>

@@ -1,2 +1,2 @@
-import { QrScreen } from "@/screens/QrScreen";
-export default QrScreen;
+import QRScreen from "@/screens/QrScreen";
+export default QRScreen;

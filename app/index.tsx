@@ -1,14 +1,33 @@
 import { ModalType, useModalStore } from "@/components/modal/store";
+import { SecureStorageService } from "@/services/secure-storage-service";
 import { Link } from "expo-router";
+import { navigate } from "expo-router/build/global-state/routing";
+import { useEffect } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
   const { openModal } = useModalStore();
-
+  
   const handleOpenModal = () => {
     openModal(ModalType.OFFER_MODAL)
   }
+
+   const checkAuthAndRedirect = async () => {
+    try {
+      const isAuthenticated = await SecureStorageService.isAuthenticated();
+      
+      if (isAuthenticated) {
+        navigate("/qr")
+      } 
+    } catch (error) {
+      console.error('Ошибка проверки авторизации:', error);
+    }
+  };
+
+  useEffect(() => {
+   checkAuthAndRedirect()
+  },[])
 
   return (
     <SafeAreaView style={styles.container}>

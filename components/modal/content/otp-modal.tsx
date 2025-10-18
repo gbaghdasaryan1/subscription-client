@@ -1,6 +1,6 @@
 import { colors } from "@/constants/theme";
 import { RegistrationForm } from "@/screens/RegistrationScreen";
-import { registration, verifyOtp } from "@/services/api";
+import { registration, verifyOtp } from "@/services";
 import { navigate } from "expo-router/build/global-state/routing";
 import { FC, useState } from "react";
 import {
