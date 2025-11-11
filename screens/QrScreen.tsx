@@ -1,9 +1,10 @@
-import { colors } from '@/constants/theme';
+import { FloatingProfileButton } from "@/components/floating-profile-button";
+import { colors } from "@/constants/theme";
 
-import { SecureStorageService } from '@/services/secure-storage-service';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useState } from 'react';
+import { SecureStorageService } from "@/services/secure-storage-service";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -13,11 +14,12 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
-} from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
-import { SafeAreaView } from 'react-native-safe-area-context';
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+  View,
+} from "react-native";
+import QRCode from "react-native-qrcode-svg";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 interface Subscription {
   id: string;
@@ -49,14 +51,14 @@ interface UsageStats {
 
 export default function QRScreen() {
   const router = useRouter();
-  
+
   // Состояния
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [qrData, setQrData] = useState<QRData | null>(null);
   const [usageStats, setUsageStats] = useState<UsageStats | null>(null);
-  const [timeUntilExpiry, setTimeUntilExpiry] = useState('');
+  const [timeUntilExpiry, setTimeUntilExpiry] = useState("");
   const [daysLeft, setDaysLeft] = useState(0);
   const [qrError, setQrError] = useState<string | null>(null);
 
@@ -80,7 +82,7 @@ export default function QRScreen() {
       const checkExpiry = setInterval(() => {
         const now = new Date();
         const expiry = new Date(qrData.expiresAt);
-        
+
         if (now >= expiry) {
           generateQRCode();
         }
@@ -97,25 +99,27 @@ export default function QRScreen() {
       setQrError(null);
 
       // Проверяем авторизацию
-      const isAuth = await SecureStorageService.isAuthenticated();
+      const isAuth = await SecureStorageService.getAuthToken();
+      console.log(isAuth, "is auth");
+
       if (!isAuth) {
-        router.replace('/login');
+        router.replace("/login");
         return;
       }
 
       // Загружаем подписку
       const subscriptionData = await SecureStorageService.getSubscription();
-      
+
       if (!subscriptionData || !subscriptionData.id) {
         Alert.alert(
-          'Подписка не найдена',
-          'Оформите подписку для доступа к QR-коду',
+          "Подписка не найдена",
+          "Оформите подписку для доступа к QR-коду",
           [
             {
-              text: 'Оформить подписку',
-              onPress: () => router.push('/subscriptions'),
+              text: "Оформить подписку",
+              onPress: () => router.push("/profile"),
             },
-          ]
+          ],
         );
         return;
       }
@@ -124,14 +128,14 @@ export default function QRScreen() {
       const isActive = checkSubscriptionActive(subscriptionData);
       if (!isActive) {
         Alert.alert(
-          'Подписка истекла',
-          'Продлите подписку для продолжения использования',
+          "Подписка истекла",
+          "Продлите подписку для продолжения использования",
           [
             {
-              text: 'Продлить',
-              onPress: () => router.push('/subscriptions'),
+              text: "Продлить",
+              onPress: () => router.push("/profile"),
             },
-          ]
+          ],
         );
         return;
       }
@@ -144,9 +148,9 @@ export default function QRScreen() {
       // Загружаем статистику
       await loadUsageStats(subscriptionData.id);
     } catch (error) {
-      console.error('Ошибка загрузки данных:', error);
-      setQrError('Не удалось загрузить данные');
-      Alert.alert('Ошибка', 'Не удалось загрузить данные. Попробуйте позже.');
+      console.error("Ошибка загрузки данных:", error);
+      setQrError("Не удалось загрузить данные");
+      Alert.alert("Ошибка", "Не удалось загрузить данные. Попробуйте позже.");
     } finally {
       setLoading(false);
     }
@@ -157,7 +161,7 @@ export default function QRScreen() {
     const now = new Date();
     const startDate = new Date(sub.startDate);
     const endDate = new Date(sub.endDate);
-    
+
     return now >= startDate && now <= endDate;
   };
 
@@ -168,28 +172,30 @@ export default function QRScreen() {
       if (!subId) return;
 
       const token = await SecureStorageService.getAuthToken();
-      const response = await fetch(
-        `https://your-api.com/qr/generate/${subId}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-        }
-      );
+      console.log(token);
 
-      if (!response.ok) {
-        throw new Error('Не удалось сгенерировать QR-код');
-      }
+      // const response = await fetch(
+      //   `https://your-api.com/qr/generate/${subId}`,
+      //   {
+      //     method: "GET",
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //       Authorization: `Bearer ${token}`,
+      //     },
+      //   },
+      // );
 
-      const data = await response.json();
-      setQrData(data);
+      // if (!response.ok) {
+      //   throw new Error("Не удалось сгенерировать QR-код");
+      // }
+
+      // const data = await response.json();
+      // setQrData(data);
       setQrError(null);
     } catch (error) {
-      console.error('Ошибка генерации QR:', error);
-      setQrError('Не удалось сгенерировать QR-код');
-      
+      console.error("Ошибка генерации QR:", error);
+      setQrError("Не удалось сгенерировать QR-код");
+
       // Генерируем локальный QR-код как запасной вариант
       generateLocalQR(subscriptionId || subscription?.id);
     }
@@ -219,12 +225,12 @@ export default function QRScreen() {
       const response = await fetch(
         `https://your-api.com/qr/usages/${subscriptionId}`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (response.ok) {
@@ -232,7 +238,7 @@ export default function QRScreen() {
         setUsageStats(data);
       }
     } catch (error) {
-      console.error('Ошибка загрузки статистики:', error);
+      console.error("Ошибка загрузки статистики:", error);
       // Используем локальные данные
       setUsageStats({
         totalUsages: 0,
@@ -257,9 +263,9 @@ export default function QRScreen() {
     setDaysLeft(days);
 
     if (days <= 0) {
-      setTimeUntilExpiry('Подписка истекла');
+      setTimeUntilExpiry("Подписка истекла");
     } else if (days === 1) {
-      setTimeUntilExpiry('Истекает сегодня');
+      setTimeUntilExpiry("Истекает сегодня");
     } else if (days <= 3) {
       setTimeUntilExpiry(`${days} дня`);
     } else if (days <= 7) {
@@ -280,22 +286,18 @@ export default function QRScreen() {
   const handleRefreshQR = async () => {
     if (!subscription?.id) return;
 
-    Alert.alert(
-      'Обновить QR-код?',
-      'Текущий QR-код станет недействительным',
-      [
-        { text: 'Отмена', style: 'cancel' },
-        {
-          text: 'Обновить',
-          onPress: async () => {
-            setLoading(true);
-            await generateQRCode(subscription.id);
-            setLoading(false);
-            Alert.alert('Готово', 'QR-код обновлен');
-          },
+    Alert.alert("Обновить QR-код?", "Текущий QR-код станет недействительным", [
+      { text: "Отмена", style: "cancel" },
+      {
+        text: "Обновить",
+        onPress: async () => {
+          setLoading(true);
+          await generateQRCode(subscription.id);
+          setLoading(false);
+          Alert.alert("Готово", "QR-код обновлен");
         },
-      ]
-    );
+      },
+    ]);
   };
 
   // Получение цвета статуса
@@ -324,6 +326,7 @@ export default function QRScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <FloatingProfileButton />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -335,21 +338,28 @@ export default function QRScreen() {
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Мой QR-код</Text>
           <Text style={styles.headerSubtitle}>
-            {subscription?.planName || 'Подписка'}
+            {subscription?.planName || "Подписка"}
           </Text>
         </View>
 
         {/* Статус подписки */}
-        <View style={[styles.statusCard, { borderLeftColor: getStatusColor() }]}>
+        <View
+          style={[styles.statusCard, { borderLeftColor: getStatusColor() }]}
+        >
           <View style={styles.statusRow}>
             <Text style={styles.statusLabel}>Статус:</Text>
-            <View style={[styles.statusBadge, { backgroundColor: getStatusColor() }]}>
+            <View
+              style={[
+                styles.statusBadge,
+                { backgroundColor: getStatusColor() },
+              ]}
+            >
               <Text style={styles.statusBadgeText}>
-                {daysLeft > 0 ? 'Активна' : 'Истекла'}
+                {daysLeft > 0 ? "Активна" : "Истекла"}
               </Text>
             </View>
           </View>
-          
+
           <View style={styles.statusRow}>
             <Text style={styles.statusLabel}>Осталось:</Text>
             <Text style={[styles.statusValue, { color: getStatusColor() }]}>
@@ -361,14 +371,18 @@ export default function QRScreen() {
             <View style={styles.dateItem}>
               <Text style={styles.dateLabel}>Начало</Text>
               <Text style={styles.dateValue}>
-                {new Date(subscription?.startDate || '').toLocaleDateString('ru-RU')}
+                {new Date(subscription?.startDate || "").toLocaleDateString(
+                  "ru-RU",
+                )}
               </Text>
             </View>
             <View style={styles.dateSeparator} />
             <View style={styles.dateItem}>
               <Text style={styles.dateLabel}>Окончание</Text>
               <Text style={styles.dateValue}>
-                {new Date(subscription?.endDate || '').toLocaleDateString('ru-RU')}
+                {new Date(subscription?.endDate || "").toLocaleDateString(
+                  "ru-RU",
+                )}
               </Text>
             </View>
           </View>
@@ -380,7 +394,7 @@ export default function QRScreen() {
             <Text style={styles.qrTitle}>Покажите QR-код на кассе</Text>
 
             <LinearGradient
-              colors={[colors.primary + '20', colors.secondary + '20']}
+              colors={[colors.primary + "20", colors.secondary + "20"]}
               style={styles.qrGradientWrapper}
             >
               <View style={styles.qrWrapper}>
@@ -398,8 +412,8 @@ export default function QRScreen() {
                 ⚠️ Не передавайте код третьим лицам
               </Text>
               <Text style={styles.qrExpiry}>
-                Действителен до:{' '}
-                {new Date(qrData.expiresAt).toLocaleString('ru-RU')}
+                Действителен до:{" "}
+                {new Date(qrData.expiresAt).toLocaleString("ru-RU")}
               </Text>
             </View>
 
@@ -408,9 +422,7 @@ export default function QRScreen() {
               onPress={handleRefreshQR}
               disabled={loading}
             >
-              <Text style={styles.refreshButtonText}>
-                🔄 Обновить QR-код
-              </Text>
+              <Text style={styles.refreshButtonText}>🔄 Обновить QR-код</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -437,7 +449,8 @@ export default function QRScreen() {
                     styles.progressFill,
                     {
                       width: `${
-                        (usageStats.usagesToday / usageStats.maxUsagesPerDay) * 100
+                        (usageStats.usagesToday / usageStats.maxUsagesPerDay) *
+                        100
                       }%`,
                       backgroundColor: isUsageLimitReached()
                         ? colors.error
@@ -461,11 +474,15 @@ export default function QRScreen() {
 
             <View style={styles.statsGrid}>
               <View style={styles.statItem}>
-                <Text style={styles.statValue}>{usageStats.usagesThisWeek}</Text>
+                <Text style={styles.statValue}>
+                  {usageStats.usagesThisWeek}
+                </Text>
                 <Text style={styles.statLabel}>На этой неделе</Text>
               </View>
               <View style={styles.statItem}>
-                <Text style={styles.statValue}>{usageStats.usagesThisMonth}</Text>
+                <Text style={styles.statValue}>
+                  {usageStats.usagesThisMonth}
+                </Text>
                 <Text style={styles.statLabel}>В этом месяце</Text>
               </View>
               <View style={styles.statItem}>
@@ -477,11 +494,13 @@ export default function QRScreen() {
             {/* История использования */}
             {usageStats.history && usageStats.history.length > 0 && (
               <View style={styles.historySection}>
-                <Text style={styles.historyTitle}>📝 Последние использования</Text>
+                <Text style={styles.historyTitle}>
+                  📝 Последние использования
+                </Text>
                 {usageStats.history.slice(0, 5).map((item, index) => (
                   <View key={index} style={styles.historyItem}>
                     <Text style={styles.historyDate}>
-                      {new Date(item.usedAt).toLocaleString('ru-RU')}
+                      {new Date(item.usedAt).toLocaleString("ru-RU")}
                     </Text>
                     {item.location && (
                       <Text style={styles.historyLocation}>
@@ -499,11 +518,9 @@ export default function QRScreen() {
         {daysLeft <= 7 && (
           <TouchableOpacity
             style={styles.renewButton}
-            onPress={() => router.push('/subscriptions')}
+            onPress={() => router.push("/subscriptions")}
           >
-            <Text style={styles.renewButtonText}>
-              ⭐ Продлить подписку
-            </Text>
+            <Text style={styles.renewButtonText}>⭐ Продлить подписку</Text>
           </TouchableOpacity>
         )}
       </ScrollView>
@@ -524,8 +541,8 @@ const styles = StyleSheet.create({
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   loadingText: {
     marginTop: 12,
@@ -537,7 +554,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: colors.text,
   },
   headerSubtitle: {
@@ -551,16 +568,16 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 16,
     borderLeftWidth: 4,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
   statusRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 12,
   },
   statusLabel: {
@@ -569,7 +586,7 @@ const styles = StyleSheet.create({
   },
   statusValue: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   statusBadge: {
     paddingHorizontal: 12,
@@ -579,11 +596,11 @@ const styles = StyleSheet.create({
   statusBadgeText: {
     color: colors.white,
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   dateRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 8,
   },
   dateItem: {
@@ -602,7 +619,7 @@ const styles = StyleSheet.create({
   },
   dateValue: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.text,
   },
   qrCard: {
@@ -610,8 +627,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 20,
     marginBottom: 16,
-    alignItems: 'center',
-    shadowColor: '#000',
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -619,10 +636,10 @@ const styles = StyleSheet.create({
   },
   qrTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: colors.text,
     marginBottom: 20,
-    textAlign: 'center',
+    textAlign: "center",
   },
   qrGradientWrapper: {
     borderRadius: 16,
@@ -633,11 +650,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     padding: 16,
     borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   qrInfo: {
-    width: '100%',
+    width: "100%",
     backgroundColor: colors.background,
     borderRadius: 8,
     padding: 12,
@@ -646,14 +663,14 @@ const styles = StyleSheet.create({
   qrInfoText: {
     fontSize: 14,
     color: colors.warning,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 8,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   qrExpiry: {
     fontSize: 12,
     color: colors.textSecondary,
-    textAlign: 'center',
+    textAlign: "center",
   },
   refreshButton: {
     backgroundColor: colors.secondary,
@@ -664,14 +681,14 @@ const styles = StyleSheet.create({
   refreshButtonText: {
     color: colors.white,
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   errorCard: {
     backgroundColor: colors.white,
     borderRadius: 12,
     padding: 20,
     marginBottom: 16,
-    alignItems: 'center',
+    alignItems: "center",
     borderWidth: 1,
     borderColor: colors.error,
   },
@@ -679,7 +696,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.error,
     marginBottom: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
   retryButton: {
     backgroundColor: colors.primary,
@@ -690,14 +707,14 @@ const styles = StyleSheet.create({
   retryButtonText: {
     color: colors.white,
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   statsCard: {
     backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -705,7 +722,7 @@ const styles = StyleSheet.create({
   },
   statsTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: colors.text,
     marginBottom: 16,
   },
@@ -716,20 +733,20 @@ const styles = StyleSheet.create({
     height: 8,
     backgroundColor: colors.background,
     borderRadius: 4,
-    overflow: 'hidden',
+    overflow: "hidden",
     marginBottom: 8,
   },
   progressFill: {
-    height: '100%',
+    height: "100%",
     borderRadius: 4,
   },
   usageText: {
     fontSize: 14,
     color: colors.textSecondary,
-    textAlign: 'right',
+    textAlign: "right",
   },
   limitWarning: {
-    backgroundColor: colors.error + '20',
+    backgroundColor: colors.error + "20",
     borderRadius: 8,
     padding: 12,
     marginBottom: 16,
@@ -737,17 +754,17 @@ const styles = StyleSheet.create({
   limitWarningText: {
     fontSize: 14,
     color: colors.error,
-    textAlign: 'center',
-    fontWeight: '600',
+    textAlign: "center",
+    fontWeight: "600",
   },
   statsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginTop: 16,
   },
   statItem: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
     padding: 12,
     backgroundColor: colors.background,
     borderRadius: 8,
@@ -755,14 +772,14 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: colors.primary,
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 12,
     color: colors.textSecondary,
-    textAlign: 'center',
+    textAlign: "center",
   },
   historySection: {
     marginTop: 20,
@@ -772,7 +789,7 @@ const styles = StyleSheet.create({
   },
   historyTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.text,
     marginBottom: 12,
   },
@@ -785,7 +802,7 @@ const styles = StyleSheet.create({
   historyDate: {
     fontSize: 14,
     color: colors.text,
-    fontWeight: '500',
+    fontWeight: "500",
     marginBottom: 4,
   },
   historyLocation: {
@@ -796,12 +813,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     borderRadius: 12,
     padding: 16,
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 16,
   },
   renewButtonText: {
     color: colors.white,
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });

@@ -5,9 +5,12 @@ export const login = async (emailOrPhone: string, password: string) => {
     const res = await api.post("/auth/login", { emailOrPhone, password });
     return res.data;
   } catch (err: any) {
-    console.error("Login error:", err.response?.data);
-    throw err;
+    console.error("Login error:", err?.response?.data);
   }
+};
+
+export const changePassword = async () => {
+  console.log("change password service");
 };
 
 export type RegisterDto = {
@@ -35,11 +38,13 @@ export const getVerificationCode = async (
   method: "sms" | "mail",
 ) => {
   try {
-    const res = await api.post("/auth/verification-otp", { emailOrPhone, method });
+    const res = await api.post("/auth/verification-otp", {
+      emailOrPhone,
+      method,
+    });
     return res.data;
   } catch (err: any) {
     console.error("Verification code error:", err.response?.data);
-    throw err;
   }
 };
 

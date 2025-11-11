@@ -1,23 +1,26 @@
-import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from "expo-secure-store";
 
 export class SecureStorageService {
   // Ключи для хранения
   private static readonly KEYS = {
-    AUTH_TOKEN: 'auth_token',
-    USER_ID: 'user_id',
-    REFRESH_TOKEN: 'refresh_token',
-    USER_DATA: 'user_data',
-    SUBSCRIPTION_DATA: 'subscription_data',
-    BIOMETRIC_ENABLED: 'biometric_enabled',
+    AUTH_TOKEN: "auth_token",
+    USER_ID: "user_id",
+    REFRESH_TOKEN: "refresh_token",
+    USER_DATA: "user_data",
+    SUBSCRIPTION_DATA: "subscription_data",
+    BIOMETRIC_ENABLED: "biometric_enabled",
   };
 
   // Сохранение токена авторизации
   static async saveAuthToken(token: any): Promise<boolean> {
     try {
-      await SecureStore.setItemAsync(this.KEYS.AUTH_TOKEN, JSON.stringify(token));
+      await SecureStore.setItemAsync(
+        this.KEYS.AUTH_TOKEN,
+        JSON.stringify(token),
+      );
       return true;
     } catch (error) {
-      console.error('Ошибка сохранения токена:', error);
+      console.error("Ошибка сохранения токена:", error);
       return false;
     }
   }
@@ -27,7 +30,7 @@ export class SecureStorageService {
     try {
       return await SecureStore.getItemAsync(this.KEYS.AUTH_TOKEN);
     } catch (error) {
-      console.error('Ошибка получения токена:', error);
+      console.error("Ошибка получения токена:", error);
       return null;
     }
   }
@@ -38,7 +41,7 @@ export class SecureStorageService {
       await SecureStore.deleteItemAsync(this.KEYS.AUTH_TOKEN);
       return true;
     } catch (error) {
-      console.error('Ошибка удаления токена:', error);
+      console.error("Ошибка удаления токена:", error);
       return false;
     }
   }
@@ -48,11 +51,11 @@ export class SecureStorageService {
     try {
       await SecureStore.setItemAsync(
         this.KEYS.USER_DATA,
-        JSON.stringify(userData)
+        JSON.stringify(userData),
       );
       return true;
     } catch (error) {
-      console.error('Ошибка сохранения данных пользователя:', error);
+      console.error("Ошибка сохранения данных пользователя:", error);
       return false;
     }
   }
@@ -63,7 +66,7 @@ export class SecureStorageService {
       const data = await SecureStore.getItemAsync(this.KEYS.USER_DATA);
       return data ? JSON.parse(data) : null;
     } catch (error) {
-      console.error('Ошибка получения данных пользователя:', error);
+      console.error("Ошибка получения данных пользователя:", error);
       return null;
     }
   }
@@ -73,11 +76,11 @@ export class SecureStorageService {
     try {
       await SecureStore.setItemAsync(
         this.KEYS.SUBSCRIPTION_DATA,
-        JSON.stringify(subscriptionData)
+        JSON.stringify(subscriptionData),
       );
       return true;
     } catch (error) {
-      console.error('Ошибка сохранения подписки:', error);
+      console.error("Ошибка сохранения подписки:", error);
       return false;
     }
   }
@@ -88,7 +91,7 @@ export class SecureStorageService {
       const data = await SecureStore.getItemAsync(this.KEYS.SUBSCRIPTION_DATA);
       return data ? JSON.parse(data) : null;
     } catch (error) {
-      console.error('Ошибка получения подписки:', error);
+      console.error("Ошибка получения подписки:", error);
       return null;
     }
   }
@@ -97,10 +100,8 @@ export class SecureStorageService {
   static async isAuthenticated(): Promise<boolean> {
     try {
       const token = await this.getAuthToken();
-      console.log(token);
-      
       return token !== null;
-    } catch (error:any) {
+    } catch (error: any) {
       return false;
     }
   }
@@ -115,7 +116,7 @@ export class SecureStorageService {
       await SecureStore.deleteItemAsync(this.KEYS.SUBSCRIPTION_DATA);
       return true;
     } catch (error) {
-      console.error('Ошибка очистки данных:', error);
+      console.error("Ошибка очистки данных:", error);
       return false;
     }
   }
@@ -124,13 +125,13 @@ export class SecureStorageService {
   static async saveWithOptions(
     key: string,
     value: string,
-    options?: SecureStore.SecureStoreOptions
+    options?: SecureStore.SecureStoreOptions,
   ): Promise<boolean> {
     try {
       await SecureStore.setItemAsync(key, value, options);
       return true;
     } catch (error) {
-      console.error('Ошибка сохранения с опциями:', error);
+      console.error("Ошибка сохранения с опциями:", error);
       return false;
     }
   }

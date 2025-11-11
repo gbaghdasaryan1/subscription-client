@@ -1,21 +1,18 @@
 import axios from "axios";
-import { SecureStorageService } from "./secure-storage-service";
 
-export const API_BASE = "http://172.20.10.1:5050";
+export const API_BASE = "http://172.20.10.6:5050";
 
 const api = axios.create({
   baseURL: API_BASE,
-  // timeout: 10000,
+  timeout: 10000,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Request Interceptor
+// Request Interceptor (no token logic)
 api.interceptors.request.use(
   async (config) => {
-    const token = await SecureStorageService.getAuthToken();
-    if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
   (error) => Promise.reject(error),

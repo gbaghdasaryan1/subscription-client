@@ -1,19 +1,21 @@
 import { ModalType, useModalStore } from "@/components/modal/store";
 import { colors } from "@/constants/theme";
 import { getVerificationCode } from "@/services";
+import { SecureStorageService } from "@/services/secure-storage-service";
 import { Link } from "expo-router";
-import { useState } from "react";
+import { navigate } from "expo-router/build/global-state/routing";
+import { useEffect, useState } from "react";
 import {
   Dimensions,
-  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
   StyleSheet,
   Switch,
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width, height } = Dimensions.get("window");
 export type RegistrationForm = {
@@ -27,6 +29,21 @@ export type RegistrationForm = {
 };
 
 export const RegistrationScreen = () => {
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const isAuthenticated = await SecureStorageService.isAuthenticated();
+        if (isAuthenticated) {
+          navigate("/qr");
+        }
+      } catch (err: any) {
+        console.debug("Auth check error:", err);
+      }
+    };
+
+    void checkAuth();
+  }, []);
+
   const [form, setForm] = useState<RegistrationForm>({
     fullName: "",
     phone: "",
@@ -38,19 +55,18 @@ export const RegistrationScreen = () => {
   });
   const { openModal } = useModalStore();
 
-
   const handleVerifyEmailOrPhone = async () => {
     openModal(ModalType.OTP_MODAL, {
       form,
       setCode: (otp: string) => setForm((prev) => ({ ...prev, code: otp })),
     });
     try {
-      if(form.password && form.fullName){
+      if (form.password && form.fullName) {
         if (form.email) {
-        await getVerificationCode(form.email, "mail");
-      } else {
-        await getVerificationCode(form.phone, "sms");
-      }
+          await getVerificationCode(form.email, "mail");
+        } else {
+          await getVerificationCode(form.phone, "sms");
+        }
       }
     } catch (error) {
       console.log(error);
@@ -59,11 +75,16 @@ export const RegistrationScreen = () => {
 
   return (
     <>
-      <SafeAreaView style={styles.container}>
-        <ScrollView style={styles.scrollContainer}>
-          <Text style={styles.screenTitle}> Регистрация</Text>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <View style={styles.background}>
+          {/* <ScrollView style={styles.scrollContainer}> */}
+          <View style={styles.container}>
+            <Text style={styles.title}> Регистрация</Text>
+            <Text style={styles.subtitle}>Войдите в свой аккаунт</Text>
 
-          <View style={styles.formContainer}>
             <TextInput
               style={styles.input}
               placeholder="Full name *"
@@ -135,18 +156,26 @@ export const RegistrationScreen = () => {
             </View>
 
             <View style={styles.termsContainer}>
+              <TouchableOpacity
+                style={{ flex: 1 }}
+                onPress={() =>
+                  setForm((prev) => ({
+                    ...prev,
+                    acceptTerms: !prev.acceptTerms,
+                  }))
+                }
+              >
+                <Text style={styles.termsText}>
+                  Согласен с условиями использования и политикой
+                  конфиденциальности
+                </Text>
+              </TouchableOpacity>
               <Switch
                 value={form.acceptTerms}
                 onValueChange={(value) =>
                   setForm((prev) => ({ ...prev, acceptTerms: value }))
                 }
               />
-              <TouchableOpacity>
-                <Text style={styles.termsText}>
-                  Согласен с условиями использования и политикой
-                  конфиденциальности
-                </Text>
-              </TouchableOpacity>
             </View>
 
             <TouchableOpacity
@@ -160,8 +189,10 @@ export const RegistrationScreen = () => {
               Already have account <Text>Login</Text>
             </Link>
           </View>
-        </ScrollView>
-      </SafeAreaView>
+        </View>
+
+        {/* </ScrollView> */}
+      </KeyboardAvoidingView>
     </>
   );
 };
@@ -183,11 +214,33 @@ const styles = StyleSheet.create({
     padding: 30,
     backgroundColor: colors.white,
   },
-  container: {
+  background: {
     flex: 1,
     justifyContent: "center",
-    padding: 20,
-    backgroundColor: colors.background,
+  },
+  container: {
+    backgroundColor: "rgba(255,255,255,0.9)", // slightly transparent for background image
+    margin: 20,
+    padding: 30,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "700",
+    textAlign: "center",
+    marginBottom: 10,
+    color: colors.primary,
+  },
+  subtitle: {
+    fontSize: 16,
+    textAlign: "center",
+    color: "#666",
+    marginBottom: 25,
   },
   verificationInput: {
     width: 200,
@@ -198,14 +251,7 @@ const styles = StyleSheet.create({
     borderColor: colors.textSecondary,
     backgroundColor: colors.white,
   },
-  scrollContainer: {},
-  screenTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 30,
-    color: colors.text,
-  },
+
   formContainer: {
     backgroundColor: colors.white,
     borderRadius: 12,
@@ -217,12 +263,17 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderRadius: 8,
-    padding: 15,
+    borderColor: "#ddd",
+    backgroundColor: "#fff",
     marginBottom: 15,
+    padding: 15,
+    borderRadius: 12,
     fontSize: 16,
-    borderColor: colors.textSecondary,
-    backgroundColor: colors.white,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
   },
 
   genderContainer: {
@@ -258,12 +309,14 @@ const styles = StyleSheet.create({
   },
   termsContainer: {
     flexDirection: "row",
-    alignItems: "center",
     gap: 10,
     marginBottom: 20,
+    flexWrap: "wrap",
+    width: "100%",
   },
   termsText: {
     flex: 1,
+    flexShrink: 1, // prevents overflow on smaller screens
     fontSize: 14,
     color: colors.textSecondary,
     lineHeight: 20,

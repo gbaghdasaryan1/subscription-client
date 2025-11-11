@@ -1,22 +1,26 @@
 import { colors } from "@/constants/theme";
 import { FC } from "react";
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useModalStore } from "../store";
 
-
-
-export const OfferModal:FC= () => {
+export const OfferModal: FC = () => {
   const { closeModal } = useModalStore();
 
   return (
-      <ScrollView style={styles.modalContainer}>
-        <ScrollView style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Условия использования</Text>
+    <View style={styles.overlay}>
+      <View style={styles.modalWrapper}>
+        <Text style={styles.modalTitle}>Условия использования</Text>
+
+        <ScrollView
+          style={styles.modalContent}
+          showsVerticalScrollIndicator={false}
+        >
           <Text style={styles.modalText}>
             1. Настоящее соглашение регулирует использование мобильного
             приложения.{"\n\n"}
@@ -29,45 +33,60 @@ export const OfferModal:FC= () => {
             7. При нарушении условий подписка может быть аннулирована.
           </Text>
         </ScrollView>
-        <TouchableOpacity style={styles.modalCloseButton} onPress={closeModal}>
-          <Text style={styles.buttonText}>Закрыть</Text>
+
+        <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
+          <Text style={styles.closeButtonText}>Понятно</Text>
         </TouchableOpacity>
-      </ScrollView>
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  buttonText: {
-    color: colors.white,
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  modalContainer: {
+  overlay: {
     flex: 1,
-    backgroundColor: colors.background,
-  },
-  modalContent: {
-    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
+  },
+  modalWrapper: {
+    backgroundColor: colors.white,
+    borderRadius: 16,
+    paddingVertical: 25,
+    paddingHorizontal: 20,
+    width: "100%",
+    maxHeight: "80%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 6,
   },
   modalTitle: {
     fontSize: 22,
-    fontWeight: "bold",
+    fontWeight: "700",
     color: colors.text,
     textAlign: "center",
     marginBottom: 20,
   },
-  modalText: {
-    fontSize: 16,
-    color: colors.text,
-    lineHeight: 24,
+  modalContent: {
     marginBottom: 20,
   },
-  modalCloseButton: {
+  modalText: {
+    fontSize: 16,
+    color: colors.textSecondary || "#444",
+    lineHeight: 24,
+  },
+  closeButton: {
     backgroundColor: colors.primary,
-    borderRadius: 8,
-    padding: 15,
+    borderRadius: 12,
+    paddingVertical: 14,
     alignItems: "center",
-    margin: 20,
+  },
+  closeButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: colors.white,
   },
 });
