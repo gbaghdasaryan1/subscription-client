@@ -1,2 +1,2 @@
-import { RegistrationScreen } from "@/screens/RegistrationScreen";
+import { RegistrationScreen } from "@/screens/registration/RegistrationScreen";
 export default RegistrationScreen;

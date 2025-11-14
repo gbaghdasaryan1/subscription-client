@@ -1,7 +1,7 @@
 import { FC, useMemo } from "react";
 import { View } from "react-native";
-import { OfferModal } from "./content/offer-modal";
-import { OtpModal } from "./content/otp-modal";
+import { OfferModal } from "./content/offer-modal/offer-modal";
+import { OtpModal } from "./content/otp-modal/otp-modal";
 import { ModalType, useModalStore } from "./store";
 
 export const Modal: FC = () => {

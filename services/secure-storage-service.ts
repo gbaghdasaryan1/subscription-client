@@ -1,5 +1,20 @@
 import * as SecureStore from "expo-secure-store";
 
+export type UserDataType = {
+  createdAt: string;
+  email: string;
+  fullName: string;
+  gender: string;
+  id: string;
+  passwordHash: string;
+  phone: string;
+  resetOtp: any;
+  resetOtpExpires: any;
+  resetToken: any;
+  resetTokenExpires: any;
+  updatedAt: string;
+};
+
 export class SecureStorageService {
   // Ключи для хранения
   private static readonly KEYS = {
@@ -47,7 +62,7 @@ export class SecureStorageService {
   }
 
   // Сохранение данных пользователя
-  static async saveUserData(userData: any): Promise<boolean> {
+  static async saveUserData(userData: UserDataType): Promise<boolean> {
     try {
       await SecureStore.setItemAsync(
         this.KEYS.USER_DATA,
@@ -61,7 +76,7 @@ export class SecureStorageService {
   }
 
   // Получение данных пользователя
-  static async getUserData(): Promise<any | null> {
+  static async getUserData(): Promise<UserDataType | null> {
     try {
       const data = await SecureStore.getItemAsync(this.KEYS.USER_DATA);
       return data ? JSON.parse(data) : null;
@@ -101,7 +116,7 @@ export class SecureStorageService {
     try {
       const token = await this.getAuthToken();
       return token !== null;
-    } catch (error: any) {
+    } catch {
       return false;
     }
   }

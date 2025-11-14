@@ -10,30 +10,16 @@ export interface QRGenerateResponse {
 export const generateQR = async (
   subscriptionId: string,
 ): Promise<QRGenerateResponse> => {
-  try {
-    const response = await api(`/qr/generate/${subscriptionId}`);
-
-    return response.data;
-  } catch (error) {
-    console.error("Ошибка generateQR:", error);
-    throw error;
-  }
+  const response = await api(`/qr/generate/${subscriptionId}`);
+  return response.data;
 };
 
 export const getQr = async (subscriptionId: string) => {
-  try {
-    const res = await api.get(`/qr/use/${subscriptionId}`);
-    return res.data;
-  } catch (error) {
-    console.log(error);
-  }
+  const res = await api.get(`/qr/use/${subscriptionId}`);
+  return res.data;
 };
 
 export const markQrUsage = async (subscriptionId: string) => {
-  try {
-    const res = await api.get(`/qr/use/${subscriptionId}`);
-    return res.data;
-  } catch (error) {
-    console.log(error);
-  }
+  const res = await api.get(`/qr/use/${subscriptionId}`);
+  return res.data;
 };

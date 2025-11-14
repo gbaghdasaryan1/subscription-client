@@ -1,11 +1,34 @@
 import api from "./axios-instance";
 
+export type SubscriptionType = {
+  createdAt: string;
+  description: string;
+  discount: any;
+  durationDays: number;
+  features: string[];
+  id: string;
+  isActive: boolean;
+  maxUsagesPerDay: number;
+  name: string;
+  price: string;
+};
+
+export const createSubscription = async (planId: string, userId: string) => {
+  const res = await api.post(`/subscriptions/create/`, { planId, userId });
+  return res.data;
+};
+
+export const getSubscriptionPlan = async () => {
+  const res = await api.get<SubscriptionType>(`/subscriptions/plan`);
+  return res.data;
+};
+
+export const getAllSubscriptionPlans = async () => {
+  const res = await api.get<SubscriptionType[]>(`/subscriptions/plans`);
+  return res.data;
+};
+
 export const getSubscriptions = async (userId: string) => {
-  try {
-    const res = await api.get(`/subscriptions/${userId}`);
-    return res.data;
-  } catch (err: any) {
-    console.error("Get subscriptions error:", err.response?.data);
-    throw err;
-  }
+  const res = await api.get(`/subscriptions/${userId}`);
+  return res.data;
 };

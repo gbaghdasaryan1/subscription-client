@@ -1,12 +1,30 @@
 import api from "./axios-instance";
+import { UserDataType } from "./secure-storage-service";
+
+export type LoginResponse = {
+  access_token: string;
+  user: UserDataType;
+};
+
+export type RegistrationResponse = {
+  access_token: string;
+  user: UserDataType;
+};
 
 export const login = async (emailOrPhone: string, password: string) => {
-  try {
-    const res = await api.post("/auth/login", { emailOrPhone, password });
-    return res.data;
-  } catch (err: any) {
-    console.error("Login error:", err?.response?.data);
-  }
+  const res = await api.post<LoginResponse>("/auth/login", {
+    emailOrPhone,
+    password,
+  });
+  return res.data;
+};
+
+export const registration = async (registerDto: RegisterDto) => {
+  const res = await api.post<RegistrationResponse>(
+    "/auth/register",
+    registerDto,
+  );
+  return res.data;
 };
 
 export const changePassword = async () => {
@@ -23,37 +41,23 @@ export type RegisterDto = {
   code?: string;
 };
 
-export const registration = async (registerDto: RegisterDto) => {
-  try {
-    const res = await api.post("/auth/register", registerDto);
-    return res.data;
-  } catch (err: any) {
-    console.error("Registration error:", err.response?.data);
-    throw err;
-  }
+export const deleteAccount = async (id: string) => {
+  const res = await api.delete(`/users/${id}`);
+  return res.data;
 };
 
 export const getVerificationCode = async (
   emailOrPhone: string,
   method: "sms" | "mail",
 ) => {
-  try {
-    const res = await api.post("/auth/verification-otp", {
-      emailOrPhone,
-      method,
-    });
-    return res.data;
-  } catch (err: any) {
-    console.error("Verification code error:", err.response?.data);
-  }
+  const res = await api.post("/auth/verification-otp", {
+    emailOrPhone,
+    method,
+  });
+  return res.data;
 };
 
 export const verifyOtp = async (target: string, otp: string) => {
-  try {
-    const res = await api.post("/auth/verify-otp", { target, otp });
-    return res.data;
-  } catch (err: any) {
-    console.error("OTP verification error:", err.response?.data);
-    throw err;
-  }
+  const res = await api.post("/auth/verify-otp", { target, otp });
+  return res.data;
 };
